@@ -1,6 +1,6 @@
 name: extract-tapermonkey-scripts-v2
 
-on:
+'on':
   workflow_dispatch:
     inputs:
       path:
@@ -11,20 +11,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Show working directory
-        run: |
-          pwd
-          find . -not -path './.git*' -print
-
       - name: Show input path
         env:
           INPUT_PATH: ${{ inputs.path }}
-        run: echo "The input path is: [$INPUT_PATH]"
+        run: |
+          echo "Input path: [$INPUT_PATH]"
 
       - name: Install dependencies
         run: |
@@ -34,19 +29,20 @@ jobs:
       - name: Extract Tampermonkey scripts
         env:
           INPUT_PATH: ${{ inputs.path }}
-        run: python py-2.py "$INPUT_PATH"
+        run: |
+          python py-2.py "$INPUT_PATH"
 
       - name: Show extraction output
         if: always()
         run: |
-          find . -not -path './.git*' -print
           if [ -f github-action-run.log ]; then
             cat github-action-run.log
           fi
+          find . -not -path './.git*' -print
 
       - name: Upload extracted scripts
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-tampermonkey-extract-output
           path: |
